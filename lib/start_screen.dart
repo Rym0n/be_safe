@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:be_safe/login.dart';
+
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
 
@@ -51,7 +53,6 @@ class _StartScreenState extends State<StartScreen> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 200.0, right: 200.0),
-              // ignore: unnecessary_const
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromRGBO(0, 86, 91, 1),
@@ -60,10 +61,10 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
                 onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => Login()),
-                  //     );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Login()),
+                  );
                 },
                 child: const Text(
                   'Get started',
