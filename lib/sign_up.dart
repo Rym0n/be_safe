@@ -1,3 +1,4 @@
+import 'package:be_safe/map.dart';
 import 'package:flutter/material.dart';
 import 'package:be_safe/login.dart';
 
@@ -129,9 +130,10 @@ class _SignUpState extends State<SignUp> {
                 child: const Text('I already have an account'),
                 onPressed: () {
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Login()),
-                  );
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MyMapWidget()) //const Login()),
+                      );
                 },
               ),
             ],

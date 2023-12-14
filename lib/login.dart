@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:be_safe/sign_up.dart';
+//import 'package:be_safe/map.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -138,7 +139,9 @@ class _LoginState extends State<Login> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SignUp()),
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const SignUp()), // MyMapWidget()) //
                   );
                 },
               ),
