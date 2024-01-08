@@ -1,3 +1,4 @@
+import 'package:be_safe/map.dart';
 import 'package:flutter/material.dart';
 
 class HomeCard extends StatelessWidget {
@@ -7,13 +8,20 @@ class HomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ListTile(
-      leading: SizedBox(
+    return ListTile(
+      leading: const SizedBox(
         height: 34,
         width: 34,
         child: Icon(Icons.home),
       ),
-      title: Text("Home"),
+      title: const Text("Home"),
+      onTap: () {
+        
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyMapWidget()),
+        );
+      },
     );
   }
 }

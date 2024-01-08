@@ -1,6 +1,9 @@
 import 'package:be_safe/map.dart';
 import 'package:flutter/material.dart';
 import 'package:be_safe/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final _firebase = FirebaseAuth.instance;
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -10,6 +13,43 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  final _formKey = GlobalKey<FormState>();
+  var _enteredEmail = '';
+  var _enteredPassword = '';
+
+  final repeatPasswordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    repeatPasswordController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void _submit() async {
+    final isValid = _formKey.currentState!.validate();
+
+    if (isValid) {
+      _formKey.currentState!.save();
+      print(_enteredEmail);
+      print(_enteredPassword);
+      try {
+        final UserCredentials = await _firebase.createUserWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
+      } on FirebaseAuthException catch (error) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message ?? 'Authentication failed.'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +64,7 @@ class _SignUpState extends State<SignUp> {
           ),
         ),
         child: Form(
-          //key: formKey,
+          key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             // ignore: prefer_const_literals_to_create_immutables
@@ -59,12 +99,19 @@ class _SignUpState extends State<SignUp> {
                   ),
                   obscureText: false,
                   showCursor: false,
-                  // controller: emailController,
-                  // autovalidateMode: AutovalidateMode.onUserInteraction,
-                  // validator: (email) =>
-                  //     email != null && !EmailValidator.validate(email)
-                  //         ? 'Enter valid email'
-                  //         : null,
+                  controller: emailController,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (email) {
+                    if (email == null ||
+                        email.trim().isEmpty ||
+                        !email.contains('@')) {
+                      return 'Enter a valid email address';
+                    }
+                    return null;
+                  },
+                  onSaved: (email) {
+                    _enteredEmail = email!;
+                  },
                 ),
               ),
               //email textfield
@@ -82,12 +129,12 @@ class _SignUpState extends State<SignUp> {
                   ),
                   obscureText: true,
                   showCursor: false,
-                  // controller: passwordController,
-                  // autovalidateMode: AutovalidateMode.onUserInteraction,
-                  // validator: (value) =>
-                  //     value != null && value.length < 6
-                  //         ? 'Enter min. 6 characters'
-                  //         : null,
+                  controller: passwordController,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (password) =>
+                      password != null && password.length < 6
+                          ? 'Enter min. 6 characters'
+                          : null,
                 ),
               ),
               //password textbox
@@ -105,11 +152,16 @@ class _SignUpState extends State<SignUp> {
                   ),
                   obscureText: true,
                   showCursor: false,
-                  // controller: repeatPasswordController,
-                  // autovalidateMode: AutovalidateMode.onUserInteraction,
-                  // validator: (value) => value != null && (value.length < 6 || value != passwordController.text)
-                  //     ? 'Passwords must be same'
-                  //     : null,
+                  controller: repeatPasswordController,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (password) => password != null &&
+                          password.length < 6 &&
+                          password != passwordController.text
+                      ? 'Password must be the same'
+                      : null,
+                  onSaved: (password) {
+                    _enteredPassword = password!;
+                  },
                 ),
               ),
               //signin button #00565Bcolor
@@ -118,7 +170,7 @@ class _SignUpState extends State<SignUp> {
                 width: 200,
                 height: 40,
                 child: ElevatedButton(
-                  onPressed: () {}, //signUp,
+                  onPressed: _submit, //signUp,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(0, 86, 91, 1),
                       shape: RoundedRectangleBorder(

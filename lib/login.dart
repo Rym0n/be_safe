@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:be_safe/sign_up.dart';
-//import 'package:be_safe/map.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:be_safe/map.dart';
+
+final _firebase = FirebaseAuth.instance;
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -14,13 +19,28 @@ class _LoginState extends State<Login> {
   var _enteredEmail = '';
   var _enteredPassword = '';
 
-  void _submit() {
+  void _submit() async {
     final isValid = _formKey.currentState!.validate();
 
     if (isValid) {
       _formKey.currentState!.save();
       print(_enteredEmail);
       print(_enteredPassword);
+    }
+    try {
+      final userCredentials = await _firebase.signInWithEmailAndPassword(
+          email: _enteredEmail, password: _enteredPassword);
+
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MyMapWidget()));
+      print(userCredentials);
+    } on FirebaseAuthException catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Authentication failed.'),
+        ),
+      );
     }
   }
 
