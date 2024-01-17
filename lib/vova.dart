@@ -51,7 +51,7 @@
 //   late double latitude;
 
 //   late double longtude;
-
+// // do zmieniania markerkow
 //   CustomInfoWindowController _customInfoWindowController =
 //       CustomInfoWindowController();
 
@@ -104,6 +104,7 @@
 //     }
 //     return Colors.red;
 //   }
+//   //GETDATABASEEEEEE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //   Future getDataBase() async {
 //     await FirebaseFirestore.instance
@@ -288,6 +289,8 @@
 //             }));
 //   }
 
+// //GET MARKERS !!!!!!!!!!!!!!!!!!!!!!!!!
+
 //   void getMarkers(double lat, double long, String description, String type) {
 //     MarkerId markerId = MarkerId(lat.toString() + long.toString());
 
@@ -312,44 +315,46 @@
 //     zoom: 13,
 //   );
 
+// // RETURN WIDGET !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// // RETURN WIDGET !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// // RETURN WIDGET !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //   @override
 //   Widget build(BuildContext context) {
 //     final MediaQueryData mediaQueryData = MediaQuery.of(context);
 //     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.black,
-//       ),
-//       body: Container(
-//         child: Column(
-//           children: [
-//             Row(
-//               children: [
-//                 Padding(
-//                                                   padding: EdgeInsets.only(
-//                                                       left: 15,
-//                                                       bottom: 0,
-//                                                       right: 0,
-//                                                       top:
-//                                                           0),),
-//                 Expanded(
-//                     child: TextFormField(
-//                   controller: _searchController,
-//                   textCapitalization: TextCapitalization.words,
-//                   decoration: InputDecoration(hintText: 'Search by City'),
-//                   onChanged: (value) {
-//                     print(value);
-//                   },
-//                 )),
-//                 IconButton(
-//                   onPressed: () async {
-//                     var place = await LocationService()
-//                         .getPlace(_searchController.text);
-//                     _goToPlace(place);
-//                   },
-//                   icon: Icon(Icons.search),
-//                 ),
-//               ],
-//             ),
+//       // appBar: AppBar(
+//       //   backgroundColor: Colors.black,
+//       // ),
+//       // body: Container(
+//       //   child: Column(
+//       //     children: [
+//       //       Row(
+//       //         children: [
+//       //           Padding(
+//       //             padding:
+//       //                 EdgeInsets.only(left: 15, bottom: 0, right: 0, top: 0),
+//       //           ),
+//       //           Expanded(
+//       //               child: TextFormField(
+//       //             controller: _searchController,
+//       //             textCapitalization: TextCapitalization.words,
+//       //             decoration: InputDecoration(hintText: 'Search by City'),
+//       //             onChanged: (value) {
+//       //               print(value);
+//       //             },
+//       //           )),
+//       //           IconButton(
+//       //             onPressed: () async {
+//       //               var place = await LocationService()
+//       //                   .getPlace(_searchController.text);
+//       //               _goToPlace(place);
+//       //             },
+//       //             icon: Icon(Icons.search),
+//       //           ),
+//       //         ],
+//       //       ),
 //             SizedBox(
 //                 height: 630.0,
 //                 child: Stack(children: <Widget>[
@@ -665,7 +670,6 @@
 //                                             },
 //                                           ),
 //                                         ),
-                                        
 //                                       ],
 //                                     );
 //                                   });
@@ -849,17 +853,7 @@
 //       ),
 //     );
 //   }
-
-//   Future<void> _goToPlace(Map<String, dynamic> place) async {
-//     final double lat = place['geometry']['location']['lat'];
-//     final double lng = place['geometry']['location']['lng'];
-
-//     final GoogleMapController controller = await _controller.future;
-//     controller.animateCamera(CameraUpdate.newCameraPosition(
-//       CameraPosition(target: LatLng(lat, lng), zoom: 12),
-//     ));
-//   }
-
+// //do zmieniania markerow 
 //   @override
 //   void dispone() {
 //     super.dispose();
