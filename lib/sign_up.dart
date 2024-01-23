@@ -1,4 +1,5 @@
 import 'package:be_safe/map.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:be_safe/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -31,14 +32,24 @@ class _SignUpState extends State<SignUp> {
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const Login()));
 
     if (isValid) {
       _formKey.currentState!.save();
       print(_enteredEmail);
       print(_enteredPassword);
       try {
-        final UserCredentials = await _firebase.createUserWithEmailAndPassword(
+        final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
+
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredentials.user!.uid)
+            .set({
+          'email': _enteredEmail,
+          'isAdmin': false, // Domyślnie użytkownik nie jest administratorem
+        });
       } on FirebaseAuthException catch (error) {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(

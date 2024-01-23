@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:be_safe/sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:be_safe/map.dart';
+import 'package:be_safe/admin_panel.dart';
 
 final _firebase = FirebaseAuth.instance;
 
@@ -31,9 +33,21 @@ class _LoginState extends State<Login> {
       final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: _enteredEmail, password: _enteredPassword);
 
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MyMapWidget()));
-      print(userCredentials);
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredentials.user!.uid)
+          .get();
+      final isAdmin = userDoc.data()?['isAdmin'] ?? false;
+
+      if (isAdmin) {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => AdminUserManagementScreen()));
+        print(userCredentials);
+      } else {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MyMapWidget()));
+        print(userCredentials);
+      }
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
