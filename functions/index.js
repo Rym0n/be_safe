@@ -12,16 +12,13 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 exports.deleteUser = functions.https.onCall(async (data, context) => {
-  // Sprawdź, czy żądanie pochodzi od administratora-
-  if (!context.auth || !context.auth.token.admin) {
-    throw new functions.https.HttpsError("permission-denied",
-        "Tylko administratorzy mogą usuwać użytkowników.");
-  }
   const userId = data.userId;
   try {
     await admin.auth().deleteUser(userId);
-    return {status: "success",
-      message: "Użytkownik ${userId} został usunięty."};
+    return {
+      status: "success",
+      message: "Użytkownik ${userId} został usunięty."
+    };
   } catch (error) {
     throw new functions.https.HttpsError("internal", error.message);
   }

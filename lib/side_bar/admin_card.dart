@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../admin_panel.dart';
+
 class AdminCard extends StatelessWidget {
   const AdminCard({
     super.key,
@@ -20,13 +22,20 @@ class AdminCard extends StatelessWidget {
             height: 1,
           ),
         ),
-        const ListTile(
-          leading: SizedBox(
+        ListTile(
+          leading:const SizedBox(
             height: 34,
             width: 34,
             child: Icon(Icons.block),
           ),
-          title: Text("Block Users"),
+          title:const Text("Block Users"),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AdminUserManagementScreen()),
+            );
+          },
         ),
       ],
     );

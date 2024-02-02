@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:be_safe/sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:be_safe/map.dart';
@@ -57,6 +58,18 @@ class _LoginState extends State<Login> {
       );
     }
   }
+
+  // Future<UserCredential> signInWithFacebook() async {
+  //   // Wywołanie logowania Facebook
+  //   final LoginResult loginResult = await FacebookAuth.instance.login();
+
+  //   // Jeśli logowanie się powiedzie, użyj tokenu Facebook do logowania w Firebase
+  //   final OAuthCredential facebookAuthCredential =
+  //       FacebookAuthProvider.credential(loginResult.accessToken!.token);
+
+  //   // Zaloguj się w Firebase
+  //   return FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +179,24 @@ class _LoginState extends State<Login> {
                   child: const Text('Login'),
                 ),
               ),
+              const SizedBox(
+                width: 100,
+                height: 20,
+              ),
+              // SizedBox(
+              //   width: 200,
+              //   height: 40,
+              //   child: ElevatedButton(
+              //     onPressed: signInWithFacebook, //_logInWithEmail,
 
-              //FacebookAuthButton(onPressed: _logInWithFacebook),
+              //     style: ElevatedButton.styleFrom(
+              //         backgroundColor: const Color.fromRGBO(0, 86, 91, 1),
+              //         shape: RoundedRectangleBorder(
+              //             borderRadius: BorderRadius.circular(10))),
+              //     child: const Text('Login with facebook'),
+              //   ),
+              // ),
+
               TextButton(
                 child: const Text("Create an account"),
                 onPressed: () {

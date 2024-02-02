@@ -28,7 +28,17 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Zarządzanie Użytkownikami"),
+        title: const Text(
+          "BLOCK USERS",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
+            fontSize: 25.0,
+            fontFamily: "Oswald",
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        backgroundColor: const Color.fromARGB(255, 226, 222, 205),
       ),
       body: StreamBuilder(
         stream: _firestore.collection('users').snapshots(),
