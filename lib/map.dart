@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 
 class MyMapWidget extends StatefulWidget {
@@ -19,8 +20,8 @@ class MyMapWidget extends StatefulWidget {
 class _MyMapWidgetState extends State<MyMapWidget> {
   GoogleMapController? mapController;
   LocationData? currentLocation;
-  TextEditingController _searchController = TextEditingController();
-  Completer<GoogleMapController> _controller = Completer();
+  final TextEditingController _searchController = TextEditingController();
+  final Completer<GoogleMapController> _controller = Completer();
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   String cityText = '';
   String eventDescription = '';
@@ -31,6 +32,9 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     super.initState();
     _getLocation();
     _loadMarkersFromFirebase();
+    Timer.periodic(const Duration(minutes: 1), (timer) {
+      _loadMarkersFromFirebase();
+    });
   }
 
 // GET LOCATION
@@ -53,34 +57,14 @@ class _MyMapWidgetState extends State<MyMapWidget> {
 
 //GET MARKERS
   Future<void> getMarkers(
-      double lat, double long, String placeName, String eventType) async {
-    MarkerId markerId = MarkerId(lat.toString() + long.toString());
-
-    // BitmapDescriptor markerIcon;
-    // switch (eventType) {
-    //   case 'Theft':
-    //     markerIcon = await BitmapDescriptor.fromAssetImage(
-    //         const ImageConfiguration(devicePixelRatio: 2),
-    //         'assets/images/theft.png');
-    //     break;
-    //   case 'Fighting':
-    //     markerIcon = await BitmapDescriptor.fromAssetImage(
-    //         const ImageConfiguration(devicePixelRatio: 2),
-    //         'assets/images/fight.png');
-    //     break;
-    //   case 'Dangerous person':
-    //     markerIcon = await BitmapDescriptor.fromAssetImage(
-    //         const ImageConfiguration(devicePixelRatio: 2),
-    //         'assets/images/dangerous_person.png');
-    //     break;
-    //   case 'Accident':
-    //     markerIcon = await BitmapDescriptor.fromAssetImage(
-    //         const ImageConfiguration(devicePixelRatio: 2),
-    //         'assets/images/accident.png');
-    //     break;
-    //   default:
-    //     markerIcon = BitmapDescriptor.defaultMarker;
-    // }
+      double lat,
+      double long,
+      String placeName,
+      String eventType,
+      String description,
+      DateTime timestamp,
+      String documentId) async {
+    MarkerId markerId = MarkerId(documentId);
     BitmapDescriptor markerIcon;
     switch (eventType) {
       case 'Theft':
@@ -104,15 +88,104 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     }
 
     Marker _marker = Marker(
-        markerId: markerId,
-        position: LatLng(lat, long),
-        icon: markerIcon,
-        infoWindow: InfoWindow(title: placeName, snippet: eventType));
+      markerId: markerId,
+      position: LatLng(lat, long),
+      icon: markerIcon,
+      onTap: () {
+        _showMarkerDetailsDialog(
+            markerId, placeName, eventType, lat, long, description, timestamp);
+      },
+    );
 
     setState(() {
       markers[markerId] = _marker;
     });
   }
+
+  //MARKER DIALOG
+
+  void _showMarkerDetailsDialog(
+      MarkerId markerId,
+      String placeName,
+      String eventType,
+      double lat,
+      double long,
+      String description,
+      DateTime timestamp) {
+    DateTime localTimestamp = timestamp.toLocal().add(const Duration(hours: 1));
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(placeName,
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Event Type: $eventType',
+                    style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 10),
+                Text(
+                  'Description: $description',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Created at: ${DateFormat('HH:mm').format(localTimestamp)}',
+                  style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => _updateMarkerTime(markerId, 30),
+              child: const Icon(Icons.thumb_up, color: Colors.green),
+            ),
+            TextButton(
+              onPressed: () => _deleteMarker(markerId),
+              child: const Icon(Icons.thumb_down, color: Colors.red),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteMarker(MarkerId markerId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('location')
+          .doc(markerId.value)
+          .delete();
+      print("Marker successfully deleted from Firebase: ${markerId.value}");
+
+      // Aktualizacja stanu aplikacji
+      setState(() {
+        markers.remove(markerId); // Usuwanie markera z mapy
+      });
+    } catch (error) {
+      print("Error deleting marker: $error");
+    }
+  }
+
+  void _updateMarkerTime(MarkerId markerId, int minutesToAdd) async {
+    var docRef =
+        FirebaseFirestore.instance.collection('location').doc(markerId.value);
+    var docSnapshot = await docRef.get();
+
+    if (docSnapshot.exists) {
+      if (minutesToAdd > 0) {
+        var data = docSnapshot.data();
+        data!['timestamp'] = FieldValue.serverTimestamp();
+        await FirebaseFirestore.instance.collection('location').add(data);
+      }
+
+      _deleteMarker(markerId);
+    }
+  }
+
   //ADD EVENT
 
   Future<void> showAddEventDialog(
@@ -188,7 +261,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       String placeName) async {
     print('Adding event to Firebase...');
     try {
-      await FirebaseFirestore.instance.collection('location').add({
+      var docRef = await FirebaseFirestore.instance.collection('location').add({
         'latitude': location.latitude,
         'longitude': location.longitude,
         'placeName': placeName,
@@ -196,7 +269,12 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         'type': type,
         'timestamp': FieldValue.serverTimestamp(),
       });
-      print('Event added to Firebase');
+
+      var docSnapshot = await docRef.get();
+      var timestamp = (docSnapshot.data()!['timestamp'] as Timestamp).toDate();
+      getMarkers(location.latitude, location.longitude, placeName, type,
+          description, timestamp, docRef.id);
+      print('Event added to Firebase with ID: ${docRef.id}');
     } catch (e) {
       print('Error adding event to Firebase: $e');
     }
@@ -205,24 +283,31 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   //LOAD MARKERS FROM DATABASE
 
   void _loadMarkersFromFirebase() async {
-    FirebaseFirestore.instance
-        .collection('location')
-        .get()
-        .then((querySnapshot) {
-      setState(() {
-        markers.clear();
-      });
-      for (var doc in querySnapshot.docs) {
-        double lat = doc.get('latitude');
-        double long = doc.get('longitude');
-        String placeName = doc.get('placeName');
-        String eventType = doc.get('type');
+    var currentTime = DateTime.now();
+    var querySnapshot =
+        await FirebaseFirestore.instance.collection('location').get();
 
-        getMarkers(lat, long, placeName, eventType);
-      }
-    }).catchError((error) {
-      print("Error loading markers from Firebase: $error");
+    setState(() {
+      markers.clear();
     });
+
+    for (var doc in querySnapshot.docs) {
+      var timestamp = doc.data()['timestamp'] as Timestamp;
+      var markerTime = timestamp.toDate();
+
+      if (currentTime.difference(markerTime).inMinutes <= 30) {
+        double lat = doc.data()['latitude'];
+        double long = doc.data()['longitude'];
+        String placeName = doc.data()['placeName'];
+        String eventType = doc.data()['type'];
+        String description = doc.data()['description'] ?? 'No description';
+        DateTime timestamp = (doc.data()['timestamp'] as Timestamp).toDate();
+        String documentId = doc.id;
+
+        await getMarkers(lat, long, placeName, eventType, description,
+            timestamp, documentId);
+      }
+    }
   }
 
   @override
@@ -293,11 +378,10 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                 if (!mounted) return;
                 await showAddEventDialog(context, tapped, placeName);
 
-                getMarkers(
-                    tapped.latitude, tapped.longitude, placeName, eventType);
+                //getMarkers(
+                //tapped.latitude, tapped.longitude, placeName, eventType);
               },
-              markers: Set<Marker>.of(markers
-                  .values), //vova + ten filmik https://www.youtube.com/watch?v=eujmt97T2Z4&t=105s&ab_channel=Abhishvek
+              markers: Set<Marker>.of(markers.values),
             ),
           ),
         ],
