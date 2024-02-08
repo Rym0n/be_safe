@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'admin_card.dart';
 import 'home_card.dart';
 import 'info_card.dart';
+import 'legend_card.dart';
 import 'logout_card.dart';
 
 class SideBarMenu extends StatefulWidget {
@@ -100,6 +101,7 @@ Widget buildMenu(
             height: 1,
           ),
         ),
+        const LegendCard(),
         const SizedBox(
           height: 96,
         ),

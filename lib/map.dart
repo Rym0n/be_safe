@@ -113,21 +113,29 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       String description,
       DateTime timestamp) {
     DateTime localTimestamp = timestamp.toLocal().add(const Duration(hours: 1));
+    String iconPath = getIconPath(eventType);
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(placeName,
-              style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          title: Column(
+            children: <Widget>[
+              if (iconPath.isNotEmpty)
+                Image.asset(iconPath, width: 64, height: 64),
+              Text(placeName,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          backgroundColor: const Color.fromARGB(255, 226, 222, 205),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Event Type: $eventType',
-                    style: const TextStyle(fontSize: 18)),
+                Text('$eventType', style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 10),
                 Text(
-                  'Description: $description',
+                  '$description',
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 10),
@@ -140,11 +148,17 @@ class _MyMapWidgetState extends State<MyMapWidget> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: () => _updateMarkerTime(markerId, 30),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _updateMarkerTime(markerId, 30);
+              },
               child: const Icon(Icons.thumb_up, color: Colors.green),
             ),
             TextButton(
-              onPressed: () => _deleteMarker(markerId),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteMarker(markerId);
+              },
               child: const Icon(Icons.thumb_down, color: Colors.red),
             ),
           ],
@@ -163,7 +177,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
 
       // Aktualizacja stanu aplikacji
       setState(() {
-        markers.remove(markerId); // Usuwanie markera z mapy
+        markers.remove(markerId);
       });
     } catch (error) {
       print("Error deleting marker: $error");
@@ -176,13 +190,23 @@ class _MyMapWidgetState extends State<MyMapWidget> {
     var docSnapshot = await docRef.get();
 
     if (docSnapshot.exists) {
-      if (minutesToAdd > 0) {
-        var data = docSnapshot.data();
-        data!['timestamp'] = FieldValue.serverTimestamp();
-        await FirebaseFirestore.instance.collection('location').add(data);
-      }
+      await docRef.update({'timestamp': FieldValue.serverTimestamp()});
+      _loadMarkersFromFirebase();
+    }
+  }
 
-      _deleteMarker(markerId);
+  String getIconPath(String eventType) {
+    switch (eventType) {
+      case 'Accident':
+        return 'assets/images/car_accident.png';
+      case 'Dangerous person':
+        return 'assets/images/dangerous_person.png';
+      case 'Fighting':
+        return 'assets/images/fight.png';
+      case 'Theft':
+        return 'assets/images/theft.png';
+      default:
+        return '';
     }
   }
 
@@ -275,6 +299,12 @@ class _MyMapWidgetState extends State<MyMapWidget> {
       getMarkers(location.latitude, location.longitude, placeName, type,
           description, timestamp, docRef.id);
       print('Event added to Firebase with ID: ${docRef.id}');
+
+      if (_controller.isCompleted) {
+        final GoogleMapController controller = await _controller.future;
+        controller.setMapStyle("[]"); // Resetowanie stylu mapy
+      }
+      _loadMarkersFromFirebase();
     } catch (e) {
       print('Error adding event to Firebase: $e');
     }
@@ -283,6 +313,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   //LOAD MARKERS FROM DATABASE
 
   void _loadMarkersFromFirebase() async {
+    if (!mounted) return;
     var currentTime = DateTime.now();
     var querySnapshot =
         await FirebaseFirestore.instance.collection('location').get();
