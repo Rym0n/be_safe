@@ -19,24 +19,4 @@ class InfoCard extends StatelessWidget {
       onTap: onInfoPressed,
     );
   }
-
-  // void _showInfoDialog(BuildContext context, String infoText) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text("Informacje o Mieście"),
-  //         content: Text(infoText),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             child: const Text("Zamknij"),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 }

@@ -13,6 +13,7 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
 
   Future<void> _deleteUser(String userId) async {
     try {
+      print(userId);
       HttpsCallable callable =
           FirebaseFunctions.instance.httpsCallable('deleteUser');
       final result = await callable.call(<String, dynamic>{
@@ -43,15 +44,14 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
       body: StreamBuilder(
         stream: _firestore.collection('users').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+          if (!snapshot.hasData) return const CircularProgressIndicator();
 
           return ListView(
             children: snapshot.data!.docs.map((user) {
               return ListTile(
-                title: Text(
-                    user['email']), // przykład, może być inny identyfikator
+                title: Text(user['email']),
                 trailing: IconButton(
-                  icon: Icon(Icons.delete),
+                  icon:const Icon(Icons.delete),
                   onPressed: () => _deleteUser(user.id),
                 ),
               );

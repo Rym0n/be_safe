@@ -41,10 +41,12 @@ class _LoginState extends State<Login> {
       final isAdmin = userDoc.data()?['isAdmin'] ?? false;
 
       if (isAdmin) {
+        // ignore: use_build_context_synchronously
         Navigator.of(context).pushReplacement(MaterialPageRoute(
             builder: (context) => AdminUserManagementScreen()));
         print(userCredentials);
       } else {
+        // ignore: use_build_context_synchronously
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const MyMapWidget()));
         print(userCredentials);
@@ -58,18 +60,6 @@ class _LoginState extends State<Login> {
       );
     }
   }
-
-  // Future<UserCredential> signInWithFacebook() async {
-  //   // Wywołanie logowania Facebook
-  //   final LoginResult loginResult = await FacebookAuth.instance.login();
-
-  //   // Jeśli logowanie się powiedzie, użyj tokenu Facebook do logowania w Firebase
-  //   final OAuthCredential facebookAuthCredential =
-  //       FacebookAuthProvider.credential(loginResult.accessToken!.token);
-
-  //   // Zaloguj się w Firebase
-  //   return FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -183,20 +173,7 @@ class _LoginState extends State<Login> {
                 width: 100,
                 height: 20,
               ),
-              // SizedBox(
-              //   width: 200,
-              //   height: 40,
-              //   child: ElevatedButton(
-              //     onPressed: signInWithFacebook, //_logInWithEmail,
-
-              //     style: ElevatedButton.styleFrom(
-              //         backgroundColor: const Color.fromRGBO(0, 86, 91, 1),
-              //         shape: RoundedRectangleBorder(
-              //             borderRadius: BorderRadius.circular(10))),
-              //     child: const Text('Login with facebook'),
-              //   ),
-              // ),
-
+              
               TextButton(
                 child: const Text("Create an account"),
                 onPressed: () {

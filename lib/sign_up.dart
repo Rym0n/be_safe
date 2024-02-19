@@ -48,7 +48,7 @@ class _SignUpState extends State<SignUp> {
             .doc(userCredentials.user!.uid)
             .set({
           'email': _enteredEmail,
-          'isAdmin': false, // Domyślnie użytkownik nie jest administratorem
+          'isAdmin': false, 
         });
       } on FirebaseAuthException catch (error) {
         ScaffoldMessenger.of(context).clearSnackBars();

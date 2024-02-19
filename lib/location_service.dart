@@ -20,7 +20,7 @@ class LocationService {
   Future<Map<String, dynamic>> getPlace(String input) async {
     final placeId = await getPlaceId(input);
     final String url =
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=AIzaSyBlETXwXoe1TvQjh5AFn1monvQgTpDpkSY';
+        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$googleApiKeylocation';
 
     var response = await http.get(Uri.parse(url));
     var json = convert.jsonDecode(response.body);

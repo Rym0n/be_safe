@@ -4,6 +4,7 @@ import 'package:be_safe/get_place_name.dart';
 import 'package:be_safe/location_service.dart';
 import 'package:be_safe/side_bar/side_bar_menu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   String eventDescription = '';
   String eventType = 'Dangerous person';
   String placeName = '';
+  String? userEmail = FirebaseAuth.instance.currentUser?.email;
   @override
   void initState() {
     super.initState();
@@ -268,7 +270,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
                   child: const Text('Add Event'),
                   onPressed: () {
                     addEventToFirebase(tappedPoint, tempEventDescription,
-                        tempEventType, placeName);
+                        tempEventType, placeName, userEmail);
                     Navigator.of(dialogContext).pop();
                   },
                 ),
@@ -282,7 +284,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
   //ADD MARKER TO FIREBASE
 
   void addEventToFirebase(LatLng location, String description, String type,
-      String placeName) async {
+      String placeName, String? userEmail) async {
     print('Adding event to Firebase...');
     try {
       var docRef = await FirebaseFirestore.instance.collection('location').add({
@@ -291,6 +293,7 @@ class _MyMapWidgetState extends State<MyMapWidget> {
         'placeName': placeName,
         'description': description,
         'type': type,
+        'userEmail': userEmail,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
@@ -394,18 +397,6 @@ class _MyMapWidgetState extends State<MyMapWidget> {
               onTap: (LatLng tapped) async {
                 placeName =
                     await getPlaceName(tapped.latitude, tapped.longitude);
-                // final coordinated = new geoCo.Coordinates(
-                //           tapped.latitude, tapped.longitude);
-                //       var adrress = await geoCo.Geocoder.local
-                //           .findAddressesFromCoordinates(coordinated);
-                //       var firstAddress = adrress.first;
-                // await FirebaseFirestore.instance.collection('location').add({
-                //   'latitude': tapped.latitude,
-                //   'longitude': tapped.longitude,
-                //   'placeName': placeName,
-                //   'timestamp': FieldValue.serverTimestamp(),
-                //   // 'Address' : tapped.
-                // });
                 if (!mounted) return;
                 await showAddEventDialog(context, tapped, placeName);
 
