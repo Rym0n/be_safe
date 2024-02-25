@@ -1,3 +1,5 @@
+BE SAFE
+
 The aim of the thesis was to create a mobile application for finding and marking on Google 
 Maps the locations where dangerous incidents occurred. Its most important advantage is the 
 ability to add markers indicating locations where legal violations have occurred.
